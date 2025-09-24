@@ -11,17 +11,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="min-h-screen flex w-full bg-background">
         <ClientSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center justify-between border-b border-border bg-card px-6">
+          <header className="h-14 flex items-center justify-between border-b border-border bg-card px-6 shadow-soft">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div>
-                <h1 className="font-semibold text-foreground">M&A Dashboard</h1>
+                <h1 className="font-semibold text-card-foreground">M&A Dashboard</h1>
                 <p className="text-sm text-muted-foreground">TechCorp Acquisition</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">Michael Chen</p>
+                <p className="text-sm font-medium text-card-foreground">Michael Chen</p>
                 <p className="text-xs text-muted-foreground">Client Portal</p>
               </div>
             </div>

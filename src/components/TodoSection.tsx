@@ -138,7 +138,7 @@ export function TodoSection() {
   return (
     <div className="space-y-6">
       {/* Todo Overview */}
-      <Card className="bg-gradient-card shadow-medium border-0">
+      <Card className="bg-card shadow-soft border border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-primary" />
@@ -147,20 +147,20 @@ export function TodoSection() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <AlertTriangle className="h-5 w-5 text-danger mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Urgent</p>
-              <p className="font-semibold text-foreground">{urgentCount}</p>
+              <p className="font-semibold text-card-foreground">{urgentCount}</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <Clock className="h-5 w-5 text-warning mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Pending</p>
-              <p className="font-semibold text-foreground">{pendingCount}</p>
+              <p className="font-semibold text-card-foreground">{pendingCount}</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <CheckSquare className="h-5 w-5 text-success mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Completed</p>
-              <p className="font-semibold text-foreground">{completedCount}</p>
+              <p className="font-semibold text-card-foreground">{completedCount}</p>
             </div>
           </div>
         </CardContent>
@@ -203,7 +203,7 @@ export function TodoSection() {
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button className="bg-gradient-primary" size="sm">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary-dark" size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Task
           </Button>

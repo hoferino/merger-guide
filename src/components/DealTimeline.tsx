@@ -123,7 +123,7 @@ export function DealTimeline() {
   return (
     <div className="space-y-6">
       {/* Timeline Overview */}
-      <Card className="bg-gradient-card shadow-medium border-0">
+      <Card className="bg-card shadow-soft border border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
@@ -132,20 +132,20 @@ export function DealTimeline() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <Users className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Current Phase</p>
-              <p className="font-semibold text-foreground">Due Diligence</p>
+              <p className="font-semibold text-card-foreground">Due Diligence</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <Clock className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Days Remaining</p>
-              <p className="font-semibold text-foreground">16 days</p>
+              <p className="font-semibold text-card-foreground">16 days</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <FileText className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Expected Close</p>
-              <p className="font-semibold text-foreground">June 1, 2024</p>
+              <p className="font-semibold text-card-foreground">June 1, 2024</p>
             </div>
           </div>
         </CardContent>
@@ -176,7 +176,7 @@ export function DealTimeline() {
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="bg-gradient-primary h-2 rounded-full transition-all duration-300" 
+                      className="bg-primary h-2 rounded-full transition-all duration-300" 
                       style={{ width: `${phase.progress}%` }}
                     ></div>
                   </div>
@@ -212,7 +212,7 @@ export function DealTimeline() {
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <Button className="flex-1 bg-gradient-primary">
+        <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary-dark">
           <Calendar className="h-4 w-4 mr-2" />
           Schedule Review
         </Button>

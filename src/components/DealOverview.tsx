@@ -56,16 +56,16 @@ export function DealOverview() {
   return (
     <div className="space-y-6">
       {/* Main Deal Status Card */}
-      <Card className="bg-gradient-card shadow-medium border-0">
+      <Card className="bg-card shadow-soft border border-border">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl font-bold text-foreground">
+              <CardTitle className="text-2xl font-bold text-card-foreground">
                 {dealData.name}
               </CardTitle>
               <p className="text-muted-foreground">Target Value: {dealData.totalValue}</p>
             </div>
-            <Badge className="bg-success text-success-foreground">
+            <Badge className="bg-success/10 text-success border-success/20">
               {dealData.status}
             </Badge>
           </div>
@@ -74,7 +74,7 @@ export function DealOverview() {
           {/* Current Phase */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Current Phase</h3>
+              <h3 className="font-semibold text-card-foreground">Current Phase</h3>
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 {dealData.currentPhase}
               </Badge>
@@ -82,7 +82,7 @@ export function DealOverview() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Overall Progress</span>
-                <span className="font-medium text-foreground">{dealData.progress}%</span>
+                <span className="font-medium text-card-foreground">{dealData.progress}%</span>
               </div>
               <Progress value={dealData.progress} className="h-2" />
             </div>
@@ -90,20 +90,20 @@ export function DealOverview() {
 
           {/* Key Metrics Row */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <Clock className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Target Close</p>
-              <p className="font-semibold text-foreground">{dealData.targetClose}</p>
+              <p className="font-semibold text-card-foreground">{dealData.targetClose}</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <FileText className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Documents</p>
-              <p className="font-semibold text-foreground">23 / 30</p>
+              <p className="font-semibold text-card-foreground">23 / 30</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <div className="text-center p-4 bg-secondary rounded-lg">
               <Users className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Stakeholders</p>
-              <p className="font-semibold text-foreground">12 Active</p>
+              <p className="font-semibold text-card-foreground">12 Active</p>
             </div>
           </div>
         </CardContent>
@@ -139,7 +139,7 @@ export function DealOverview() {
               </div>
             ))}
           </div>
-          <Button className="w-full mt-4 bg-gradient-primary">
+          <Button className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary-dark">
             View All Action Items
           </Button>
         </CardContent>

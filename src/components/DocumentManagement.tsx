@@ -94,7 +94,7 @@ export function DocumentManagement() {
   return (
     <div className="space-y-6">
       {/* Document Overview */}
-      <Card className="bg-gradient-card shadow-medium border-0">
+      <Card className="bg-card shadow-soft border border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Folder className="h-5 w-5 text-primary" />
@@ -104,19 +104,19 @@ export function DocumentManagement() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-card-foreground">
                 {totalUploaded} / {totalRequired}
               </p>
               <p className="text-sm text-muted-foreground">Documents Uploaded</p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-semibold text-foreground">{completionPercentage}%</p>
+              <p className="text-lg font-semibold text-card-foreground">{completionPercentage}%</p>
               <p className="text-sm text-muted-foreground">Complete</p>
             </div>
           </div>
           <Progress value={completionPercentage} className="h-2" />
           <div className="flex gap-2">
-            <Button className="flex-1 bg-gradient-primary">
+            <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary-dark">
               <Upload className="h-4 w-4 mr-2" />
               Upload Documents
             </Button>
@@ -192,7 +192,7 @@ export function DocumentManagement() {
           <p className="text-muted-foreground mb-4">
             Drag and drop files here, or click to browse
           </p>
-          <Button className="bg-gradient-primary">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary-dark">
             Choose Files
           </Button>
           <p className="text-xs text-muted-foreground mt-2">
