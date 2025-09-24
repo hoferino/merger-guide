@@ -1,90 +1,184 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { DocumentBox } from "./DocumentBox";
 import { 
   Upload, 
-  FileText, 
   Download, 
-  CheckCircle, 
-  Clock, 
-  AlertTriangle,
   Folder,
-  Eye
+  DollarSign,
+  Scale,
+  Users,
+  Settings
 } from "lucide-react";
 
+// Transform the existing data structure to support folder organization
 const documentCategories = [
   {
     name: "Financial Documents",
+    icon: <DollarSign className="h-5 w-5 text-primary" />,
     required: 8,
     uploaded: 6,
-    status: "in-progress",
-    documents: [
-      { name: "Audited Financials (3 years)", status: "uploaded", type: "pdf" },
-      { name: "Management Accounts", status: "uploaded", type: "xlsx" },
-      { name: "Cash Flow Projections", status: "uploaded", type: "xlsx" },
-      { name: "Tax Returns", status: "uploaded", type: "pdf" },
-      { name: "Working Capital Analysis", status: "uploaded", type: "xlsx" },
-      { name: "Debt Schedule", status: "uploaded", type: "xlsx" },
-      { name: "Insurance Documentation", status: "pending", type: "pdf" },
-      { name: "Banking Agreements", status: "pending", type: "pdf" }
+    status: "in-progress" as const,
+    folderStructure: [
+      {
+        name: "Annual Reports",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Audited Financials (3 years)",
+            type: "document" as const,
+            document: { name: "Audited Financials (3 years)", status: "uploaded" as const, type: "pdf" }
+          },
+          {
+            name: "Management Accounts",
+            type: "document" as const,
+            document: { name: "Management Accounts", status: "uploaded" as const, type: "xlsx" }
+          }
+        ]
+      },
+      {
+        name: "Projections & Analysis",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Cash Flow Projections",
+            type: "document" as const,
+            document: { name: "Cash Flow Projections", status: "uploaded" as const, type: "xlsx" }
+          },
+          {
+            name: "Working Capital Analysis",
+            type: "document" as const,
+            document: { name: "Working Capital Analysis", status: "uploaded" as const, type: "xlsx" }
+          }
+        ]
+      },
+      {
+        name: "Tax Returns",
+        type: "document" as const,
+        document: { name: "Tax Returns", status: "uploaded" as const, type: "pdf" }
+      },
+      {
+        name: "Banking & Debt",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Debt Schedule",
+            type: "document" as const,
+            document: { name: "Debt Schedule", status: "uploaded" as const, type: "xlsx" }
+          },
+          {
+            name: "Banking Agreements",
+            type: "document" as const,
+            document: { name: "Banking Agreements", status: "pending" as const, type: "pdf" }
+          }
+        ]
+      },
+      {
+        name: "Insurance Documentation",
+        type: "document" as const,
+        document: { name: "Insurance Documentation", status: "pending" as const, type: "pdf" }
+      }
     ]
   },
   {
     name: "Legal Documents",
+    icon: <Scale className="h-5 w-5 text-primary" />,
     required: 6,
     uploaded: 4,
-    status: "in-progress",
-    documents: [
-      { name: "Articles of Incorporation", status: "uploaded", type: "pdf" },
-      { name: "Board Resolutions", status: "uploaded", type: "pdf" },
-      { name: "Material Contracts", status: "uploaded", type: "pdf" },
-      { name: "IP Documentation", status: "uploaded", type: "pdf" },
-      { name: "Employment Agreements", status: "pending", type: "pdf" },
-      { name: "Compliance Certificates", status: "pending", type: "pdf" }
+    status: "in-progress" as const,
+    folderStructure: [
+      {
+        name: "Corporate Structure",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Articles of Incorporation",
+            type: "document" as const,
+            document: { name: "Articles of Incorporation", status: "uploaded" as const, type: "pdf" }
+          },
+          {
+            name: "Board Resolutions",
+            type: "document" as const,
+            document: { name: "Board Resolutions", status: "uploaded" as const, type: "pdf" }
+          }
+        ]
+      },
+      {
+        name: "Contracts & Agreements",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Material Contracts",
+            type: "document" as const,
+            document: { name: "Material Contracts", status: "uploaded" as const, type: "pdf" }
+          },
+          {
+            name: "Employment Agreements",
+            type: "document" as const,
+            document: { name: "Employment Agreements", status: "pending" as const, type: "pdf" }
+          }
+        ]
+      },
+      {
+        name: "IP Documentation",
+        type: "document" as const,
+        document: { name: "IP Documentation", status: "uploaded" as const, type: "pdf" }
+      },
+      {
+        name: "Compliance Certificates",
+        type: "document" as const,
+        document: { name: "Compliance Certificates", status: "pending" as const, type: "pdf" }
+      }
     ]
   },
   {
     name: "Operational Documents",
+    icon: <Users className="h-5 w-5 text-primary" />,
     required: 5,
     uploaded: 5,
-    status: "completed",
-    documents: [
-      { name: "Organization Chart", status: "uploaded", type: "pdf" },
-      { name: "Key Personnel CVs", status: "uploaded", type: "pdf" },
-      { name: "Customer List", status: "uploaded", type: "xlsx" },
-      { name: "Supplier Agreements", status: "uploaded", type: "pdf" },
-      { name: "Business Plan", status: "uploaded", type: "pdf" }
+    status: "completed" as const,
+    folderStructure: [
+      {
+        name: "Organization & Personnel",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Organization Chart",
+            type: "document" as const,
+            document: { name: "Organization Chart", status: "uploaded" as const, type: "pdf" }
+          },
+          {
+            name: "Key Personnel CVs",
+            type: "document" as const,
+            document: { name: "Key Personnel CVs", status: "uploaded" as const, type: "pdf" }
+          }
+        ]
+      },
+      {
+        name: "Business Relationships",
+        type: "folder" as const,
+        children: [
+          {
+            name: "Customer List",
+            type: "document" as const,
+            document: { name: "Customer List", status: "uploaded" as const, type: "xlsx" }
+          },
+          {
+            name: "Supplier Agreements",
+            type: "document" as const,
+            document: { name: "Supplier Agreements", status: "uploaded" as const, type: "pdf" }
+          }
+        ]
+      },
+      {
+        name: "Business Plan",
+        type: "document" as const,
+        document: { name: "Business Plan", status: "uploaded" as const, type: "pdf" }
+      }
     ]
   }
 ];
-
-const StatusIcon = ({ status }: { status: string }) => {
-  switch (status) {
-    case "uploaded":
-      return <CheckCircle className="h-4 w-4 text-success" />;
-    case "pending":
-      return <Clock className="h-4 w-4 text-warning" />;
-    case "overdue":
-      return <AlertTriangle className="h-4 w-4 text-danger" />;
-    default:
-      return <FileText className="h-4 w-4 text-muted-foreground" />;
-  }
-};
-
-const CategoryStatusBadge = ({ status }: { status: string }) => {
-  const variants = {
-    completed: "bg-success/10 text-success border-success/20",
-    "in-progress": "bg-warning/10 text-warning border-warning/20",
-    pending: "bg-muted text-muted-foreground border-border"
-  };
-  
-  return (
-    <Badge variant="outline" className={variants[status as keyof typeof variants]}>
-      {status.replace('-', ' ')}
-    </Badge>
-  );
-};
 
 export function DocumentManagement() {
   const totalRequired = documentCategories.reduce((sum, cat) => sum + cat.required, 0);
@@ -98,7 +192,7 @@ export function DocumentManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Folder className="h-5 w-5 text-primary" />
-            Document Management
+            Document Management Overview
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -128,59 +222,18 @@ export function DocumentManagement() {
         </CardContent>
       </Card>
 
-      {/* Document Categories */}
-      <div className="space-y-4">
+      {/* Document Type Boxes - new organized layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {documentCategories.map((category, index) => (
-          <Card key={index} className="shadow-soft">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{category.name}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <CategoryStatusBadge status={category.status} />
-                  <span className="text-sm text-muted-foreground">
-                    {category.uploaded}/{category.required}
-                  </span>
-                </div>
-              </div>
-              <Progress 
-                value={(category.uploaded / category.required) * 100} 
-                className="h-1" 
-              />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {category.documents.map((doc, docIndex) => (
-                  <div key={docIndex} className="flex items-center justify-between p-2 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <StatusIcon status={doc.status} />
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{doc.name}</p>
-                        <p className="text-xs text-muted-foreground uppercase">{doc.type}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {doc.status === "uploaded" && (
-                        <>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                      {doc.status === "pending" && (
-                        <Button variant="outline" size="sm">
-                          <Upload className="h-4 w-4 mr-1" />
-                          Upload
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <DocumentBox
+            key={index}
+            title={category.name}
+            required={category.required}
+            uploaded={category.uploaded}
+            status={category.status}
+            folderStructure={category.folderStructure}
+            icon={category.icon}
+          />
         ))}
       </div>
 
@@ -188,7 +241,7 @@ export function DocumentManagement() {
       <Card className="border-2 border-dashed border-border">
         <CardContent className="p-8 text-center">
           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-semibold text-foreground mb-2">Upload Documents</h3>
+          <h3 className="font-semibold text-card-foreground mb-2">Upload Documents</h3>
           <p className="text-muted-foreground mb-4">
             Drag and drop files here, or click to browse
           </p>
