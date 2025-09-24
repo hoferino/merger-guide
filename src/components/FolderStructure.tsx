@@ -46,7 +46,7 @@ interface FolderItem {
 interface FolderStructureProps {
   items: FolderItem[];
   level?: number;
-  selectedDocuments: Set<string>;
+  selectedDocuments?: Set<string>;
   onToggleDocumentSelection: (documentId: string) => void;
   onItemRename: (itemId: string) => void;
   onItemDelete: (itemId: string) => void;
@@ -80,6 +80,9 @@ export function FolderStructure({
   onDragStart
 }: FolderStructureProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  
+  // Safety check for selectedDocuments
+  const safeSelectedDocuments = selectedDocuments || new Set<string>();
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -93,10 +96,12 @@ export function FolderStructure({
 
   return (
     <div className="space-y-1">
-      {items.map((item, index) => {
+      {items?.map((item, index) => {
+        if (!item) return null;
+        
         const isExpanded = expandedFolders.has(item.id);
         const paddingLeft = level * 20;
-        const isSelected = item.document && selectedDocuments.has(item.document.id);
+        const isSelected = item.document && safeSelectedDocuments.has(item.document.id);
 
         if (item.type === "folder") {
           return (
@@ -161,7 +166,7 @@ export function FolderStructure({
                 <FolderStructure 
                   items={item.children} 
                   level={level + 1}
-                  selectedDocuments={selectedDocuments}
+                  selectedDocuments={safeSelectedDocuments}
                   onToggleDocumentSelection={onToggleDocumentSelection}
                   onItemRename={onItemRename}
                   onItemDelete={onItemDelete}
