@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { FolderStructure } from "./FolderStructure";
 import { 
   FileText, 
@@ -95,20 +97,60 @@ export function DocumentBox({
   onDragOver,
   onDrop
 }: DocumentBoxProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(title);
   const completionPercentage = Math.round((uploaded / required) * 100);
+
+  const handleNameClick = () => {
+    setIsEditing(true);
+    setEditName(title);
+  };
+
+  const handleNameSave = () => {
+    if (editName.trim() && editName !== title) {
+      onRename();
+      // The actual rename logic is handled by the parent
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNameSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditName(title);
+    }
+  };
 
   return (
     <Card 
-      className="shadow-soft border border-border h-fit relative group"
+      className="shadow-soft border border-border h-[600px] relative group flex flex-col"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <div className="flex items-center gap-2 flex-1">
             {icon || <Folder className="h-5 w-5 text-primary" />}
-            {title}
-          </CardTitle>
+            {isEditing ? (
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={handleNameSave}
+                onKeyDown={handleKeyDown}
+                className="text-lg font-semibold bg-transparent border-none p-0 h-auto focus:ring-1"
+                autoFocus
+              />
+            ) : (
+              <span 
+                className="text-lg font-semibold cursor-pointer hover:text-primary transition-colors"
+                onClick={handleNameClick}
+              >
+                {title}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={status} />
             <span className="text-sm text-muted-foreground font-medium">

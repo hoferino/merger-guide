@@ -80,6 +80,8 @@ export function FolderStructure({
   onDragStart
 }: FolderStructureProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside' | null>(null);
   
   // Safety check for selectedDocuments
   const safeSelectedDocuments = selectedDocuments || new Set<string>();
@@ -94,6 +96,61 @@ export function FolderStructure({
     setExpandedFolders(newExpanded);
   };
 
+  const handleDragOver = (e: React.DragEvent, itemId: string, itemType: 'folder' | 'document') => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    
+    let position: 'before' | 'after' | 'inside' = 'after';
+    
+    if (itemType === 'folder') {
+      if (y < height * 0.25) {
+        position = 'before';
+      } else if (y > height * 0.75) {
+        position = 'after';
+      } else {
+        position = 'inside';
+      }
+    } else {
+      position = y < height * 0.5 ? 'before' : 'after';
+    }
+    
+    setDragOverItem(itemId);
+    setDropPosition(position);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverItem(null);
+      setDropPosition(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverItem(null);
+    setDropPosition(null);
+    // Handle drop logic would be implemented by parent
+  };
+
+  const getDropIndicatorClass = (itemId: string, itemType: 'folder' | 'document') => {
+    if (dragOverItem !== itemId) return '';
+    
+    const baseClass = 'relative ';
+    if (dropPosition === 'before') {
+      return baseClass + 'before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:content-[""]';
+    } else if (dropPosition === 'after') {
+      return baseClass + 'after:absolute after:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:content-[""]';
+    } else if (dropPosition === 'inside' && itemType === 'folder') {
+      return baseClass + 'ring-2 ring-primary/50 ring-inset';
+    }
+    return '';
+  };
+
   return (
     <div className="space-y-1">
       {items?.map((item, index) => {
@@ -105,7 +162,13 @@ export function FolderStructure({
 
         if (item.type === "folder") {
           return (
-            <div key={item.id}>
+            <div
+              key={item.id}
+              className={`${getDropIndicatorClass(item.id, 'folder')}`}
+              onDragOver={(e) => handleDragOver(e, item.id, 'folder')}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, item.id)}
+            >
               <div
                 className={`flex items-center gap-2 p-2 rounded-md hover:bg-secondary/50 transition-colors group ${isSelected ? 'bg-primary/10' : ''}`}
                 style={{ paddingLeft: `${paddingLeft + 8}px` }}
@@ -183,10 +246,13 @@ export function FolderStructure({
           return (
             <div
               key={item.id}
-              className={`flex items-center justify-between p-2 rounded-md hover:bg-secondary/30 transition-colors group ${isSelected ? 'bg-primary/10' : ''}`}
+              className={`${getDropIndicatorClass(item.id, 'document')} flex items-center justify-between p-2 rounded-md hover:bg-secondary/30 transition-colors group ${isSelected ? 'bg-primary/10' : ''}`}
               style={{ paddingLeft: `${paddingLeft + 28}px` }}
               draggable
               onDragStart={() => onDragStart(item)}
+              onDragOver={(e) => handleDragOver(e, item.id, 'document')}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, item.id)}
             >
               <div className="flex items-center gap-2 flex-1">
                 <Checkbox

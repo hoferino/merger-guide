@@ -421,35 +421,81 @@ export function DocumentManagement() {
   return (
     <div className="space-y-6">
       {/* Main Content Area - Two Column Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         {/* Left Side - Document Type Boxes */}
         <div className="xl:col-span-3 space-y-6">
+          {/* Category Management Header */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-card-foreground">Document Categories</h3>
+            <Button onClick={() => setShowCreateCategoryDialog(true)} className="animate-fade-in">
+              <Plus className="h-4 w-4 mr-2" />
+              New Category
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {categories.map((category) => (
-              <DocumentBox
+            {categories.map((category, index) => (
+              <div
                 key={category.id}
-                id={category.id}
-                title={category.name}
-                required={category.required}
-                uploaded={category.uploaded}
-                status={category.status}
-                folderStructure={category.folderStructure}
-                icon={category.icon}
-                selectedDocuments={selectedDocuments}
-                onRename={() => handleRenameCategory(category.id)}
-                onDelete={() => handleDeleteCategory(category.id)}
-                onCreateFolder={() => handleCreateFolder(category.id)}
-                onCreateDocument={() => handleCreateDocument(category.id)}
-                onToggleDocumentSelection={toggleDocumentSelection}
-                onItemRename={(itemId) => handleRenameItem(category.id, itemId)}
-                onItemDelete={(itemId) => handleDeleteItem(category.id, itemId)}
-                onItemCreateFolder={(parentId) => handleCreateFolder(category.id, parentId)}
-                onItemCreateDocument={(parentId) => handleCreateDocument(category.id, parentId)}
-                onDragStart={(item) => handleDragStart(category.id, item)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, category.id)}
-              />
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/json', JSON.stringify({
+                    type: 'category',
+                    categoryId: category.id
+                  }));
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const data = JSON.parse(e.dataTransfer.getData('application/json'));
+                  if (data.type === 'category' && data.categoryId !== category.id) {
+                    // reorderCategories would be implemented in the hook
+                    console.log('Reorder category', data.categoryId, 'after', category.id);
+                  }
+                }}
+                className="group"
+              >
+                <DocumentBox
+                  id={category.id}
+                  title={category.name}
+                  required={category.required}
+                  uploaded={category.uploaded}
+                  status={category.status}
+                  folderStructure={category.folderStructure || []}
+                  icon={category.icon}
+                  selectedDocuments={selectedDocuments}
+                  onRename={() => handleRenameCategory(category.id)}
+                  onDelete={() => handleDeleteCategory(category.id)}
+                  onCreateFolder={() => handleCreateFolder(category.id)}
+                  onCreateDocument={() => handleCreateDocument(category.id)}
+                  onToggleDocumentSelection={toggleDocumentSelection}
+                  onItemRename={(itemId) => handleRenameItem(category.id, itemId)}
+                  onItemDelete={(itemId) => handleDeleteItem(category.id, itemId)}
+                  onItemCreateFolder={(parentId) => handleCreateFolder(category.id, parentId)}
+                  onItemCreateDocument={(parentId) => handleCreateDocument(category.id, parentId)}
+                  onDragStart={(item) => handleDragStart(category.id, item)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, category.id)}
+                />
+              </div>
             ))}
+            
+            {/* Add New Category Card */}
+            <Card 
+              className="h-[600px] border-2 border-dashed border-border/50 hover:border-primary/50 transition-all duration-200 cursor-pointer group bg-gradient-to-br from-secondary/20 to-background animate-fade-in"
+              onClick={() => setShowCreateCategoryDialog(true)}
+            >
+              <CardContent className="h-full flex flex-col items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+                <div className="rounded-full bg-secondary/50 group-hover:bg-primary/10 p-6 mb-4 transition-colors">
+                  <Plus className="h-12 w-12" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Add New Category</h3>
+                <p className="text-sm text-center px-4">Create a new document category to organize your files</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Upload Zone */}

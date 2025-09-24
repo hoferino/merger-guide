@@ -84,10 +84,10 @@ export function DocumentChecklist({
   }, {} as Record<string, DocumentItem[]>);
 
   return (
-    <Card className="bg-card shadow-soft border border-border h-fit sticky top-6">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <CheckSquare className="h-5 w-5 text-primary" />
+    <Card className="bg-gradient-to-br from-card to-card/80 backdrop-blur-sm border-2 border-border/50 shadow-lg h-[800px] flex flex-col sticky top-6 animate-fade-in">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-t-lg border-b border-border/50 pb-4 shrink-0">
+        <CardTitle className="flex items-center gap-2 text-primary">
+          <CheckSquare className="h-5 w-5" />
           Document Checklist
         </CardTitle>
         <div className="space-y-3">
@@ -106,7 +106,7 @@ export function DocumentChecklist({
           <Progress value={completionPercentage} className="h-2" />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+      <CardContent className="space-y-4 overflow-y-auto flex-1 min-h-0 py-4">
         {Object.entries(groupedDocuments).map(([category, docs]) => {
           const isCollapsed = collapsedSections.has(category);
           const completedDocs = docs.filter(doc => doc.status === "uploaded").length;
