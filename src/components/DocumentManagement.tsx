@@ -420,47 +420,6 @@ export function DocumentManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Document Overview */}
-      <Card className="bg-card shadow-soft border border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Folder className="h-5 w-5 text-primary" />
-              Document Management Overview
-            </CardTitle>
-            <Button onClick={() => setShowCreateCategoryDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Category
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">
-                {totalUploaded} / {totalRequired}
-              </p>
-              <p className="text-sm text-muted-foreground">Documents Uploaded</p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-card-foreground">{completionPercentage}%</p>
-              <p className="text-sm text-muted-foreground">Complete</p>
-            </div>
-          </div>
-          <Progress value={completionPercentage} className="h-2" />
-          <div className="flex gap-2">
-            <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary-dark">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Documents
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <Download className="h-4 w-4 mr-2" />
-              Download All
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Main Content Area - Two Column Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Left Side - Document Type Boxes */}
