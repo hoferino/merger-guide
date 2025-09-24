@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ChevronRight, 
   ChevronDown, 
@@ -12,16 +13,30 @@ import {
   Eye,
   CheckCircle,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  MoreVertical,
+  Edit,
+  Trash2,
+  FolderPlus,
+  FilePlus
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Document {
+  id: string;
   name: string;
   status: "uploaded" | "pending" | "overdue";
   type: string;
 }
 
 interface FolderItem {
+  id: string;
   name: string;
   type: "folder" | "document";
   children?: FolderItem[];
@@ -31,6 +46,13 @@ interface FolderItem {
 interface FolderStructureProps {
   items: FolderItem[];
   level?: number;
+  selectedDocuments: Set<string>;
+  onToggleDocumentSelection: (documentId: string) => void;
+  onItemRename: (itemId: string) => void;
+  onItemDelete: (itemId: string) => void;
+  onItemCreateFolder: (parentId: string | null) => void;
+  onItemCreateDocument: (parentId: string | null) => void;
+  onDragStart: (item: FolderItem) => void;
 }
 
 const StatusIcon = ({ status }: { status: string }) => {
@@ -46,15 +68,25 @@ const StatusIcon = ({ status }: { status: string }) => {
   }
 };
 
-export function FolderStructure({ items, level = 0 }: FolderStructureProps) {
+export function FolderStructure({ 
+  items, 
+  level = 0, 
+  selectedDocuments, 
+  onToggleDocumentSelection,
+  onItemRename,
+  onItemDelete,
+  onItemCreateFolder,
+  onItemCreateDocument,
+  onDragStart
+}: FolderStructureProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
-  const toggleFolder = (folderName: string) => {
+  const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
-    if (newExpanded.has(folderName)) {
-      newExpanded.delete(folderName);
+    if (newExpanded.has(folderId)) {
+      newExpanded.delete(folderId);
     } else {
-      newExpanded.add(folderName);
+      newExpanded.add(folderId);
     }
     setExpandedFolders(newExpanded);
   };
@@ -62,38 +94,81 @@ export function FolderStructure({ items, level = 0 }: FolderStructureProps) {
   return (
     <div className="space-y-1">
       {items.map((item, index) => {
-        const isExpanded = expandedFolders.has(item.name);
+        const isExpanded = expandedFolders.has(item.id);
         const paddingLeft = level * 20;
+        const isSelected = item.document && selectedDocuments.has(item.document.id);
 
         if (item.type === "folder") {
           return (
-            <div key={index}>
+            <div key={item.id}>
               <div
-                className="flex items-center gap-2 p-2 rounded-md hover:bg-secondary/50 cursor-pointer transition-colors"
+                className={`flex items-center gap-2 p-2 rounded-md hover:bg-secondary/50 transition-colors group ${isSelected ? 'bg-primary/10' : ''}`}
                 style={{ paddingLeft: `${paddingLeft + 8}px` }}
-                onClick={() => toggleFolder(item.name)}
+                draggable
+                onDragStart={() => onDragStart(item)}
               >
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                )}
-                {isExpanded ? (
-                  <FolderOpen className="h-4 w-4 text-primary" />
-                ) : (
-                  <Folder className="h-4 w-4 text-primary" />
-                )}
-                <span className="font-medium text-card-foreground text-sm">
-                  {item.name}
-                </span>
-                {item.children && (
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    {item.children.length}
-                  </Badge>
-                )}
+                <div
+                  className="flex items-center gap-2 flex-1 cursor-pointer"
+                  onClick={() => toggleFolder(item.id)}
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  {isExpanded ? (
+                    <FolderOpen className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Folder className="h-4 w-4 text-primary" />
+                  )}
+                  <span className="font-medium text-card-foreground text-sm">
+                    {item.name}
+                  </span>
+                  {item.children && (
+                    <Badge variant="outline" className="text-xs">
+                      {item.children.length}
+                    </Badge>
+                  )}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+                      <MoreVertical className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onItemCreateFolder(item.id)}>
+                      <FolderPlus className="h-4 w-4 mr-2" />
+                      New Folder
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onItemCreateDocument(item.id)}>
+                      <FilePlus className="h-4 w-4 mr-2" />
+                      New Document
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => onItemRename(item.id)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onItemDelete(item.id)} className="text-danger">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               {isExpanded && item.children && (
-                <FolderStructure items={item.children} level={level + 1} />
+                <FolderStructure 
+                  items={item.children} 
+                  level={level + 1}
+                  selectedDocuments={selectedDocuments}
+                  onToggleDocumentSelection={onToggleDocumentSelection}
+                  onItemRename={onItemRename}
+                  onItemDelete={onItemDelete}
+                  onItemCreateFolder={onItemCreateFolder}
+                  onItemCreateDocument={onItemCreateDocument}
+                  onDragStart={onDragStart}
+                />
               )}
             </div>
           );
@@ -102,11 +177,18 @@ export function FolderStructure({ items, level = 0 }: FolderStructureProps) {
           const doc = item.document!;
           return (
             <div
-              key={index}
-              className="flex items-center justify-between p-2 rounded-md hover:bg-secondary/30 transition-colors"
+              key={item.id}
+              className={`flex items-center justify-between p-2 rounded-md hover:bg-secondary/30 transition-colors group ${isSelected ? 'bg-primary/10' : ''}`}
               style={{ paddingLeft: `${paddingLeft + 28}px` }}
+              draggable
+              onDragStart={() => onDragStart(item)}
             >
               <div className="flex items-center gap-2 flex-1">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => onToggleDocumentSelection(doc.id)}
+                  className="h-4 w-4"
+                />
                 <StatusIcon status={doc.status} />
                 <div className="flex-1">
                   <p className="font-medium text-card-foreground text-sm">
@@ -134,6 +216,23 @@ export function FolderStructure({ items, level = 0 }: FolderStructureProps) {
                     Upload
                   </Button>
                 )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+                      <MoreVertical className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onItemRename(item.id)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onItemDelete(item.id)} className="text-danger">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           );
