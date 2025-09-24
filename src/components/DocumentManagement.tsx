@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { DocumentBox } from "./DocumentBox";
+import { DocumentChecklist } from "./DocumentChecklist";
 import { 
   Upload, 
   Download, 
@@ -11,6 +12,27 @@ import {
   Users,
   Settings
 } from "lucide-react";
+
+// Helper function to flatten folder structure into document list
+const flattenDocuments = (folderStructure: any[], category: string): any[] => {
+  const documents: any[] = [];
+  
+  const traverse = (items: any[]) => {
+    items.forEach(item => {
+      if (item.type === "document" && item.document) {
+        documents.push({
+          ...item.document,
+          category
+        });
+      } else if (item.type === "folder" && item.children) {
+        traverse(item.children);
+      }
+    });
+  };
+  
+  traverse(folderStructure);
+  return documents;
+};
 
 // Transform the existing data structure to support folder organization
 const documentCategories = [
@@ -185,6 +207,11 @@ export function DocumentManagement() {
   const totalUploaded = documentCategories.reduce((sum, cat) => sum + cat.uploaded, 0);
   const completionPercentage = Math.round((totalUploaded / totalRequired) * 100);
 
+  // Flatten all documents for the checklist
+  const allDocuments = documentCategories.flatMap(category => 
+    flattenDocuments(category.folderStructure, category.name)
+  );
+
   return (
     <div className="space-y-6">
       {/* Document Overview */}
@@ -222,37 +249,52 @@ export function DocumentManagement() {
         </CardContent>
       </Card>
 
-      {/* Document Type Boxes - new organized layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {documentCategories.map((category, index) => (
-          <DocumentBox
-            key={index}
-            title={category.name}
-            required={category.required}
-            uploaded={category.uploaded}
-            status={category.status}
-            folderStructure={category.folderStructure}
-            icon={category.icon}
-          />
-        ))}
-      </div>
+      {/* Main Content Area - Two Column Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        {/* Left Side - Document Type Boxes */}
+        <div className="xl:col-span-3 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {documentCategories.map((category, index) => (
+              <DocumentBox
+                key={index}
+                title={category.name}
+                required={category.required}
+                uploaded={category.uploaded}
+                status={category.status}
+                folderStructure={category.folderStructure}
+                icon={category.icon}
+              />
+            ))}
+          </div>
 
-      {/* Upload Zone */}
-      <Card className="border-2 border-dashed border-border">
-        <CardContent className="p-8 text-center">
-          <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-semibold text-card-foreground mb-2">Upload Documents</h3>
-          <p className="text-muted-foreground mb-4">
-            Drag and drop files here, or click to browse
-          </p>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary-dark">
-            Choose Files
-          </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            Supports PDF, DOC, DOCX, XLS, XLSX files up to 10MB
-          </p>
-        </CardContent>
-      </Card>
+          {/* Upload Zone */}
+          <Card className="border-2 border-dashed border-border">
+            <CardContent className="p-8 text-center">
+              <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-semibold text-card-foreground mb-2">Upload Documents</h3>
+              <p className="text-muted-foreground mb-4">
+                Drag and drop files here, or click to browse
+              </p>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary-dark">
+                Choose Files
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Supports PDF, DOC, DOCX, XLS, XLSX files up to 10MB
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Side - Document Checklist */}
+        <div className="xl:col-span-1">
+          <DocumentChecklist 
+            documents={allDocuments}
+            totalRequired={totalRequired}
+            totalUploaded={totalUploaded}
+            completionPercentage={completionPercentage}
+          />
+        </div>
+      </div>
     </div>
   );
 }
