@@ -1,11 +1,23 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { DealOverview } from "@/components/DealOverview";
+import { KPIMetrics } from "@/components/KPIMetrics";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-3xl font-bold text-foreground mb-2">Deal Overview</h2>
+        <p className="text-muted-foreground">
+          Track your M&A transaction progress, key metrics, and upcoming milestones
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2">
+          <DealOverview />
+        </div>
+        <div className="xl:col-span-1">
+          <KPIMetrics />
+        </div>
       </div>
     </div>
   );
