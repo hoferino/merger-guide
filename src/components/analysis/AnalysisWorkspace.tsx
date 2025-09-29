@@ -29,19 +29,7 @@ export function AnalysisWorkspace({
   const [isGeneratingTeaser, setIsGeneratingTeaser] = useState(false);
   const [teaserPrompt, setTeaserPrompt] = useState("");
 
-  if (!session) {
-    return (
-      <div className="h-full flex items-center justify-center text-muted-foreground">
-        <div className="text-center">
-          <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg font-medium">No analysis session selected</p>
-          <p className="text-sm mt-2">Create or select a session to begin</p>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedDocuments = session.selected_document_ids || [];
+  const selectedDocuments = session?.selected_document_ids || [];
 
   const toggleDocument = (docId: string) => {
     const newSelection = selectedDocuments.includes(docId)
@@ -143,45 +131,66 @@ export function AnalysisWorkspace({
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Document Selection</CardTitle>
           <CardDescription className="text-xs">
-            Select documents to include in this analysis
+            {session 
+              ? "Select documents to include in this analysis" 
+              : "Create or select a session to begin analysis"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-            {documents.map((doc) => (
-              <Card
-                key={doc.id}
-                className={`p-3 cursor-pointer transition-all border-2 ${
-                  selectedDocuments.includes(doc.id)
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50 hover:bg-accent/30"
-                }`}
-                onClick={() => toggleDocument(doc.id)}
-              >
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    checked={selectedDocuments.includes(doc.id)}
-                    onCheckedChange={() => toggleDocument(doc.id)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{doc.name}</p>
-                    <Badge variant="secondary" className="text-xs mt-1">
-                      {doc.type}
-                    </Badge>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3 font-medium">
-            {selectedDocuments.length} document{selectedDocuments.length !== 1 ? "s" : ""} selected
-          </p>
+          {documents.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p className="text-sm">No documents available</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                {documents.map((doc) => (
+                  <Card
+                    key={doc.id}
+                    className={`p-3 cursor-pointer transition-all border-2 ${
+                      !session 
+                        ? "border-border opacity-50 cursor-not-allowed" 
+                        : selectedDocuments.includes(doc.id)
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50 hover:bg-accent/30"
+                    }`}
+                    onClick={() => session && toggleDocument(doc.id)}
+                  >
+                    <div className="flex items-start gap-2">
+                      <Checkbox
+                        checked={selectedDocuments.includes(doc.id)}
+                        onCheckedChange={() => session && toggleDocument(doc.id)}
+                        className="mt-0.5"
+                        disabled={!session}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{doc.name}</p>
+                        <Badge variant="secondary" className="text-xs mt-1">
+                          {doc.type}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 font-medium">
+                {selectedDocuments.length} document{selectedDocuments.length !== 1 ? "s" : ""} selected
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
 
-      {/* Tabs for Generation Types */}
-      <Tabs defaultValue="summary" className="flex-1 flex flex-col mx-4 mb-4">
+      {!session ? (
+        <div className="flex-1 flex items-center justify-center text-muted-foreground mx-4 mb-4">
+          <div className="text-center">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-lg font-medium">No analysis session selected</p>
+            <p className="text-sm mt-2">Create or select a session to begin generating outputs</p>
+          </div>
+        </div>
+      ) : (
+        <Tabs defaultValue="summary" className="flex-1 flex flex-col mx-4 mb-4">
         <TabsList>
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="teaser">Teaser</TabsTrigger>
@@ -323,7 +332,8 @@ export function AnalysisWorkspace({
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
     </div>
   );
 }

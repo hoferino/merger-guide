@@ -13,7 +13,7 @@ interface AIAnalysisHubProps {
 }
 
 export function AIAnalysisHub({ documents }: AIAnalysisHubProps) {
-  const { dealId } = useParams<{ dealId: string }>();
+  const { id: dealId } = useParams<{ id: string }>();
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const {
