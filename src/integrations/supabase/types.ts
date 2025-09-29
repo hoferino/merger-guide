@@ -14,13 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analysis_sessions: {
+        Row: {
+          created_at: string
+          custom_prompts: Json | null
+          deal_id: string
+          id: string
+          name: string
+          selected_document_ids: string[] | null
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_prompts?: Json | null
+          deal_id: string
+          id?: string
+          name: string
+          selected_document_ids?: string[] | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_prompts?: Json | null
+          deal_id?: string
+          id?: string
+          name?: string
+          selected_document_ids?: string[] | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      generated_outputs: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          prompt_used: string | null
+          session_id: string
+          type: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          prompt_used?: string | null
+          session_id: string
+          type: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          prompt_used?: string | null
+          session_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_outputs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_analysis_name: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
