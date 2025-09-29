@@ -36,43 +36,47 @@ serve(async (req) => {
 
     const prompt = `You are a financial analyst expert specializing in M&A deal analysis.
 
-Analyze these documents and provide a structured summary:
+I have a list of document names and types from a company being evaluated for acquisition. Based ONLY on the document names, types, and typical contents of such documents in M&A contexts, provide a realistic and detailed analysis.
+
+Documents available:
 ${docList}
 
-Generate a comprehensive analysis with the following sections:
+IMPORTANT: You cannot access the actual document contents. Instead, use your knowledge of what these document types typically contain in M&A deals to generate a realistic, data-driven analysis. Make reasonable assumptions based on industry standards and typical patterns.
+
+Generate a comprehensive analysis with these sections:
 
 **KEY FINDINGS**
-Provide 4-6 bullet points highlighting the most critical insights from these documents.
+Provide 4-6 specific bullet points about what these documents typically reveal in M&A contexts. Be concrete and data-driven.
 
 **FINANCIALS**
-Based on the document types (especially Financial Statements), provide estimates for:
-- Revenue trends and projections
-- Profit margins and operational efficiency
-- Cash flow analysis
-- Key financial metrics
+Based on financial documents being present, estimate typical metrics for a mid-market company:
+- Revenue range and growth trends (provide specific numbers)
+- Typical profit margins for this type of business
+- Cash flow characteristics
+- Key financial ratios
 
 **MARKET POSITION**
-Analyze the company's competitive landscape:
-- Market share and positioning
-- Competitive advantages
-- Industry trends
-- Customer base and segments
+Analyze what these documents suggest about market positioning:
+- Likely market segment and competitive position
+- Customer base characteristics
+- Competitive advantages indicated by document types present
+- Industry context
 
 **OPPORTUNITIES**
-Identify growth potential:
+Identify 3-4 specific growth opportunities that these documents would typically reveal:
 - Market expansion possibilities
-- Product/service development opportunities
+- Product/service development
 - Strategic advantages
-- Synergy potential
+- M&A synergy potential
 
 **RISKS**
-Highlight challenges and concerns:
-- Market risks
+Highlight 3-4 key risks that would be apparent from these document types:
+- Market and competitive risks
 - Operational challenges
 - Financial concerns
 - Regulatory or compliance issues
 
-Base your analysis on typical patterns and expectations for these document types in M&A contexts. Be specific, data-driven where possible, and provide actionable insights.`;
+Be specific with numbers where appropriate. Format the response with clear section headers using **bold** markdown.`;
 
     console.log('Calling Lovable AI Gateway with documents:', documents.length);
 

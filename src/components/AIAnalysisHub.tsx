@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Sparkles, Download, RefreshCw, Loader2 } from "lucide-react";
+import { FileText, Sparkles, Download, RefreshCw, Loader2, Eye } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +27,9 @@ export function AIAnalysisHub() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [summary, setSummary] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [generatedTeaser, setGeneratedTeaser] = useState("");
+  const [isGeneratingTeaser, setIsGeneratingTeaser] = useState(false);
+  const [showTeaserPreview, setShowTeaserPreview] = useState(false);
   const [analysisStep, setAnalysisStep] = useState<"select" | "summary" | "prompt" | "generate">("select");
   const { toast } = useToast();
 
@@ -128,10 +131,85 @@ Target audience: Private equity investors and strategic buyers`);
     });
   };
 
+  const generateTeaser = async () => {
+    setIsGeneratingTeaser(true);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-teaser`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ summary, prompt: generatedPrompt }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "AI service is busy. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (response.status === 402) {
+          toast({
+            title: "AI credits exhausted",
+            description: "Please add credits to continue using AI analysis.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw new Error('Teaser generation failed');
+      }
+
+      const data = await response.json();
+      setGeneratedTeaser(data.teaser);
+      setShowTeaserPreview(true);
+      
+      toast({
+        title: "Teaser generated",
+        description: "Your document is ready to preview.",
+      });
+    } catch (error) {
+      console.error('Teaser generation error:', error);
+      toast({
+        title: "Generation failed",
+        description: "Please try again or contact support if the issue persists.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingTeaser(false);
+    }
+  };
+
+  const downloadMarkdown = () => {
+    const blob = new Blob([generatedTeaser], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'teaser-document.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Download started",
+      description: "Your teaser document is being downloaded.",
+    });
+  };
+
   const resetAnalysis = () => {
     setSelectedDocs([]);
     setSummary("");
     setGeneratedPrompt("");
+    setGeneratedTeaser("");
+    setShowTeaserPreview(false);
     setAnalysisStep("select");
   };
 
@@ -255,13 +333,56 @@ Target audience: Private equity investors and strategic buyers`);
               placeholder="Prompt will appear here..."
             />
             <div className="flex gap-2">
-              <Button className="flex-1">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate Teaser
+              <Button 
+                className="flex-1"
+                onClick={generateTeaser}
+                disabled={isGeneratingTeaser}
+              >
+                {isGeneratingTeaser ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating Teaser...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Teaser
+                  </>
+                )}
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" disabled>
                 <Download className="h-4 w-4 mr-2" />
                 Export as PowerPoint
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Generated Teaser Preview */}
+      {showTeaserPreview && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Generated Teaser Document
+            </CardTitle>
+            <CardDescription>
+              Preview and download your AI-generated teaser
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="prose prose-sm max-w-none p-4 rounded-lg border bg-muted/50">
+              <pre className="whitespace-pre-wrap font-sans">{generatedTeaser}</pre>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={downloadMarkdown} variant="outline" className="flex-1">
+                <Download className="h-4 w-4 mr-2" />
+                Download as Markdown
+              </Button>
+              <Button onClick={generateTeaser} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Regenerate
               </Button>
             </div>
           </CardContent>
