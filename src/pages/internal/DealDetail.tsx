@@ -12,11 +12,38 @@ import { TodoSection } from "@/components/TodoSection";
 import { KPIMetrics } from "@/components/KPIMetrics";
 import DocumentsPage from "@/pages/DocumentsPage";
 import { AIAnalysisHub } from "@/components/AIAnalysisHub";
+import { DocumentManagement } from "@/components/DocumentManagement";
+import { useDocumentManagement, Document as DocType } from "@/hooks/useDocumentManagement";
+
+// Helper to flatten all documents from categories
+const flattenAllDocuments = (categories: any[]): DocType[] => {
+  const allDocs: DocType[] = [];
+  
+  const traverse = (items: any[]) => {
+    items.forEach((item) => {
+      if (item.type === "document" && item.document) {
+        allDocs.push(item.document);
+      } else if (item.type === "folder" && item.children) {
+        traverse(item.children);
+      }
+    });
+  };
+  
+  categories.forEach((category) => {
+    traverse(category.folderStructure);
+  });
+  
+  return allDocs;
+};
 
 export default function DealDetail() {
   const { id } = useParams();
   const deal = mockDeals.find(d => d.id === id);
   const client = deal ? mockClients.find(c => c.id === deal.clientId) : null;
+  
+  // Get document management state
+  const documentManagement = useDocumentManagement([]);
+  const allDocuments = flattenAllDocuments(documentManagement.categories);
 
   if (!deal) {
     return (
@@ -141,8 +168,8 @@ export default function DealDetail() {
           <DocumentsPage />
         </TabsContent>
 
-        <TabsContent value="ai-analysis">
-          <AIAnalysisHub />
+        <TabsContent value="ai-analysis" className="h-[calc(100vh-16rem)]">
+          <AIAnalysisHub documents={allDocuments} />
         </TabsContent>
 
         <TabsContent value="timeline">
