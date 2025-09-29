@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, Users, DollarSign, Calendar, TrendingUp } from "lucide-react";
+import { ArrowLeft, Edit, Users, DollarSign, Calendar, TrendingUp, Scale } from "lucide-react";
 import { DealOverview } from "@/components/DealOverview";
 import { DealTimeline } from "@/components/DealTimeline";
 import { TodoSection } from "@/components/TodoSection";
@@ -13,7 +13,204 @@ import { KPIMetrics } from "@/components/KPIMetrics";
 import DocumentsPage from "@/pages/DocumentsPage";
 import { AIAnalysisHub } from "@/components/AIAnalysisHub";
 import { DocumentManagement } from "@/components/DocumentManagement";
-import { useDocumentManagement, Document as DocType } from "@/hooks/useDocumentManagement";
+import { useDocumentManagement, Document as DocType, DocumentCategory } from "@/hooks/useDocumentManagement";
+
+// Mock data for documents (temporary until Supabase integration)
+const initialDocumentCategories: DocumentCategory[] = [
+  {
+    id: "financial-docs",
+    name: "Financial Documents",
+    icon: <DollarSign className="h-5 w-5 text-primary" />,
+    required: 8,
+    uploaded: 6,
+    status: "in-progress",
+    folderStructure: [
+      {
+        id: "annual-reports",
+        name: "Annual Reports",
+        type: "folder",
+        children: [
+          {
+            id: "audited-financials",
+            name: "Audited Financials (3 years)",
+            type: "document",
+            document: { id: "doc-1", name: "Audited Financials (3 years)", status: "uploaded", type: "pdf" }
+          },
+          {
+            id: "management-accounts",
+            name: "Management Accounts",
+            type: "document",
+            document: { id: "doc-2", name: "Management Accounts", status: "uploaded", type: "xlsx" }
+          }
+        ]
+      },
+      {
+        id: "projections-analysis",
+        name: "Projections & Analysis",
+        type: "folder",
+        children: [
+          {
+            id: "cash-flow-projections",
+            name: "Cash Flow Projections",
+            type: "document",
+            document: { id: "doc-3", name: "Cash Flow Projections", status: "uploaded", type: "xlsx" }
+          },
+          {
+            id: "working-capital-analysis",
+            name: "Working Capital Analysis",
+            type: "document",
+            document: { id: "doc-4", name: "Working Capital Analysis", status: "uploaded", type: "xlsx" }
+          }
+        ]
+      },
+      {
+        id: "tax-returns",
+        name: "Tax Returns",
+        type: "document",
+        document: { id: "doc-5", name: "Tax Returns", status: "uploaded", type: "pdf" }
+      },
+      {
+        id: "banking-debt",
+        name: "Banking & Debt",
+        type: "folder",
+        children: [
+          {
+            id: "debt-schedule",
+            name: "Debt Schedule",
+            type: "document",
+            document: { id: "doc-6", name: "Debt Schedule", status: "uploaded", type: "xlsx" }
+          },
+          {
+            id: "banking-agreements",
+            name: "Banking Agreements",
+            type: "document",
+            document: { id: "doc-7", name: "Banking Agreements", status: "pending", type: "pdf" }
+          }
+        ]
+      },
+      {
+        id: "insurance-documentation",
+        name: "Insurance Documentation",
+        type: "document",
+        document: { id: "doc-8", name: "Insurance Documentation", status: "pending", type: "pdf" }
+      }
+    ]
+  },
+  {
+    id: "legal-docs",
+    name: "Legal Documents",
+    icon: <Scale className="h-5 w-5 text-primary" />,
+    required: 6,
+    uploaded: 4,
+    status: "in-progress",
+    folderStructure: [
+      {
+        id: "corporate-structure",
+        name: "Corporate Structure",
+        type: "folder",
+        children: [
+          {
+            id: "articles-incorporation",
+            name: "Articles of Incorporation",
+            type: "document",
+            document: { id: "doc-9", name: "Articles of Incorporation", status: "uploaded", type: "pdf" }
+          },
+          {
+            id: "board-resolutions",
+            name: "Board Resolutions",
+            type: "document",
+            document: { id: "doc-10", name: "Board Resolutions", status: "uploaded", type: "pdf" }
+          }
+        ]
+      },
+      {
+        id: "contracts-agreements",
+        name: "Contracts & Agreements",
+        type: "folder",
+        children: [
+          {
+            id: "material-contracts",
+            name: "Material Contracts",
+            type: "document",
+            document: { id: "doc-11", name: "Material Contracts", status: "uploaded", type: "pdf" }
+          },
+          {
+            id: "employment-agreements",
+            name: "Employment Agreements",
+            type: "document",
+            document: { id: "doc-12", name: "Employment Agreements", status: "pending", type: "pdf" }
+          }
+        ]
+      },
+      {
+        id: "ip-documentation",
+        name: "IP Documentation",
+        type: "document",
+        document: { id: "doc-13", name: "IP Documentation", status: "uploaded", type: "pdf" }
+      },
+      {
+        id: "compliance-certificates",
+        name: "Compliance Certificates",
+        type: "document",
+        document: { id: "doc-14", name: "Compliance Certificates", status: "pending", type: "pdf" }
+      }
+    ]
+  },
+  {
+    id: "operational-docs",
+    name: "Operational Documents",
+    icon: <Users className="h-5 w-5 text-primary" />,
+    required: 5,
+    uploaded: 5,
+    status: "completed",
+    folderStructure: [
+      {
+        id: "organization-personnel",
+        name: "Organization & Personnel",
+        type: "folder",
+        children: [
+          {
+            id: "organization-chart",
+            name: "Organization Chart",
+            type: "document",
+            document: { id: "doc-15", name: "Organization Chart", status: "uploaded", type: "pdf" }
+          },
+          {
+            id: "key-personnel-cvs",
+            name: "Key Personnel CVs",
+            type: "document",
+            document: { id: "doc-16", name: "Key Personnel CVs", status: "uploaded", type: "pdf" }
+          }
+        ]
+      },
+      {
+        id: "business-relationships",
+        name: "Business Relationships",
+        type: "folder",
+        children: [
+          {
+            id: "customer-list",
+            name: "Customer List",
+            type: "document",
+            document: { id: "doc-17", name: "Customer List", status: "uploaded", type: "xlsx" }
+          },
+          {
+            id: "supplier-agreements",
+            name: "Supplier Agreements",
+            type: "document",
+            document: { id: "doc-18", name: "Supplier Agreements", status: "uploaded", type: "pdf" }
+          }
+        ]
+      },
+      {
+        id: "business-plan",
+        name: "Business Plan",
+        type: "document",
+        document: { id: "doc-19", name: "Business Plan", status: "uploaded", type: "pdf" }
+      }
+    ]
+  }
+];
 
 // Helper to flatten all documents from categories
 const flattenAllDocuments = (categories: any[]): DocType[] => {
@@ -41,8 +238,8 @@ export default function DealDetail() {
   const deal = mockDeals.find(d => d.id === id);
   const client = deal ? mockClients.find(c => c.id === deal.clientId) : null;
   
-  // Get document management state
-  const documentManagement = useDocumentManagement([]);
+  // Get document management state with mock data
+  const documentManagement = useDocumentManagement(initialDocumentCategories);
   const allDocuments = flattenAllDocuments(documentManagement.categories);
 
   if (!deal) {
