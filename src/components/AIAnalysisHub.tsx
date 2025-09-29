@@ -15,6 +15,8 @@ interface AIAnalysisHubProps {
 export function AIAnalysisHub({ documents }: AIAnalysisHubProps) {
   const { id: dealId } = useParams<{ id: string }>();
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  
+  console.log("🔍 AIAnalysisHub - documents received:", documents);
 
   const {
     sessions,

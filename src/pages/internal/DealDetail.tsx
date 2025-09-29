@@ -241,6 +241,9 @@ export default function DealDetail() {
   // Get document management state with mock data
   const documentManagement = useDocumentManagement(initialDocumentCategories);
   const allDocuments = flattenAllDocuments(documentManagement.categories);
+  
+  console.log("🔍 DealDetail - documentManagement.categories:", documentManagement.categories);
+  console.log("🔍 DealDetail - allDocuments:", allDocuments);
 
   if (!deal) {
     return (
