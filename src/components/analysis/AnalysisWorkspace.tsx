@@ -28,9 +28,6 @@ export function AnalysisWorkspace({
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isGeneratingTeaser, setIsGeneratingTeaser] = useState(false);
   const [teaserPrompt, setTeaserPrompt] = useState("");
-  
-  console.log("🔍 AnalysisWorkspace - documents received:", documents);
-  console.log("🔍 AnalysisWorkspace - documents.length:", documents.length);
 
   const selectedDocuments = session?.selected_document_ids || [];
 
