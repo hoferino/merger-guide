@@ -147,24 +147,34 @@ export function AnalysisWorkspace({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
             {documents.map((doc) => (
-              <label
+              <Card
                 key={doc.id}
-                className="flex items-center gap-2 p-2 rounded border border-border hover:bg-accent/50 cursor-pointer transition-colors"
+                className={`p-3 cursor-pointer transition-all border-2 ${
+                  selectedDocuments.includes(doc.id)
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50 hover:bg-accent/30"
+                }`}
+                onClick={() => toggleDocument(doc.id)}
               >
-                <Checkbox
-                  checked={selectedDocuments.includes(doc.id)}
-                  onCheckedChange={() => toggleDocument(doc.id)}
-                />
-                <span className="text-sm truncate flex-1">{doc.name}</span>
-                <Badge variant="secondary" className="text-xs">
-                  {doc.type}
-                </Badge>
-              </label>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    checked={selectedDocuments.includes(doc.id)}
+                    onCheckedChange={() => toggleDocument(doc.id)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{doc.name}</p>
+                    <Badge variant="secondary" className="text-xs mt-1">
+                      {doc.type}
+                    </Badge>
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-3 font-medium">
             {selectedDocuments.length} document{selectedDocuments.length !== 1 ? "s" : ""} selected
           </p>
         </CardContent>
@@ -175,7 +185,7 @@ export function AnalysisWorkspace({
         <TabsList>
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="teaser">Teaser</TabsTrigger>
-          <TabsTrigger value="cim" disabled>CIM</TabsTrigger>
+          <TabsTrigger value="cim">CIM</TabsTrigger>
         </TabsList>
 
         <TabsContent value="summary" className="flex-1 mt-2">
@@ -276,13 +286,40 @@ export function AnalysisWorkspace({
             <CardHeader>
               <CardTitle className="text-base">Generate CIM</CardTitle>
               <CardDescription className="text-xs">
-                Coming soon: Confidential Information Memorandum
+                Create a comprehensive Confidential Information Memorandum
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                This feature will be available in a future update.
-              </p>
+            <CardContent className="space-y-4">
+              {session.summary && (
+                <div className="p-3 rounded-md bg-blue-500/10 border border-blue-500/20">
+                  <p className="text-xs font-medium text-blue-500 mb-1">Using Summary</p>
+                  <p className="text-xs text-muted-foreground line-clamp-3">
+                    {session.summary}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Custom Prompt (Optional)
+                </label>
+                <Textarea
+                  placeholder="Enter custom instructions for the CIM generation..."
+                  className="min-h-24 text-sm"
+                  disabled
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  CIM generation coming soon
+                </p>
+              </div>
+
+              <Button
+                disabled
+                className="w-full"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate CIM (Coming Soon)
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
