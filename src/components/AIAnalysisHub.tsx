@@ -48,51 +48,61 @@ export function AIAnalysisHub() {
 
     setIsAnalyzing(true);
     
-    // Simulate AI analysis
-    setTimeout(() => {
-      const selectedDocNames = mockDocuments
-        .filter(doc => selectedDocs.includes(doc.id))
-        .map(doc => doc.name)
-        .join(", ");
+    try {
+      const selectedDocuments = mockDocuments.filter(doc => 
+        selectedDocs.includes(doc.id)
+      );
       
-      setSummary(`Analysis Summary for: ${selectedDocNames}
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-documents`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ documents: selectedDocuments }),
+        }
+      );
 
-KEY FINDINGS:
-• Strong financial performance with 45% YoY revenue growth
-• Diversified product portfolio across 3 main segments
-• Customer base of 500+ enterprise clients with 95% retention rate
-• Established market presence in North America and Europe
-• Recent expansion into Asian markets showing promising traction
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "AI service is busy. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (response.status === 402) {
+          toast({
+            title: "AI credits exhausted",
+            description: "Please add credits to continue using AI analysis.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw new Error('Analysis failed');
+      }
 
-FINANCIALS:
-• Revenue: $50M (2024), up from $34.5M (2023)
-• EBITDA Margin: 28%
-• Net Profit Margin: 18%
-• Cash Flow: Positive and growing
-
-MARKET POSITION:
-• Top 3 player in target market
-• Strong brand recognition and customer loyalty
-• Competitive advantages in technology and customer service
-
-OPPORTUNITIES:
-• Expansion into new geographic markets
-• Product line extension potential
-• Strategic acquisition targets identified
-
-RISKS:
-• Increasing competition in core markets
-• Dependence on key customer relationships
-• Regulatory changes in target markets`);
-      
+      const data = await response.json();
+      setSummary(data.summary);
       setAnalysisStep("summary");
-      setIsAnalyzing(false);
       
       toast({
         title: "Summary generated",
-        description: "Review the analysis summary below.",
+        description: "Review the AI-generated analysis below.",
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Please try again or contact support if the issue persists.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const generatePrompt = () => {
