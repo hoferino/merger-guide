@@ -22,15 +22,16 @@ const mockDocuments: Document[] = [
   { id: "5", name: "Legal Documents.pdf", type: "Legal", size: "3.1 MB" },
 ];
 
+type WorkflowStep = "choose" | "documents" | "summary" | "teaser" | "cim";
+
 export function AIAnalysisHub() {
+  const [currentStep, setCurrentStep] = useState<WorkflowStep>("choose");
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [summary, setSummary] = useState("");
-  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [customPrompt, setCustomPrompt] = useState("");
   const [generatedTeaser, setGeneratedTeaser] = useState("");
   const [isGeneratingTeaser, setIsGeneratingTeaser] = useState(false);
-  const [showTeaserPreview, setShowTeaserPreview] = useState(false);
-  const [analysisStep, setAnalysisStep] = useState<"select" | "summary" | "prompt" | "generate">("select");
   const { toast } = useToast();
 
   const toggleDocument = (docId: string) => {
@@ -90,7 +91,6 @@ export function AIAnalysisHub() {
 
       const data = await response.json();
       setSummary(data.summary);
-      setAnalysisStep("summary");
       
       toast({
         title: "Summary generated",
@@ -108,10 +108,10 @@ export function AIAnalysisHub() {
     }
   };
 
-  const generatePrompt = () => {
-    setGeneratedPrompt(`Create a professional teaser document for this company based on the following information:
+  const getDefaultTeaserPrompt = () => {
+    return `Create a professional teaser document for this company based on the following information:
 
-${summary}
+${summary || "[Analysis summary will be included here]"}
 
 The teaser should:
 - Be concise (1-2 pages)
@@ -121,17 +121,11 @@ The teaser should:
 - Maintain confidentiality (use "The Company" instead of specific names)
 - Focus on growth potential and competitive advantages
 
-Target audience: Private equity investors and strategic buyers`);
-    
-    setAnalysisStep("prompt");
-    
-    toast({
-      title: "Prompt generated",
-      description: "You can now edit the prompt or generate the document.",
-    });
+Target audience: Private equity investors and strategic buyers`;
   };
 
   const generateTeaser = async () => {
+    const promptToUse = customPrompt || getDefaultTeaserPrompt();
     setIsGeneratingTeaser(true);
     
     try {
@@ -143,7 +137,7 @@ Target audience: Private equity investors and strategic buyers`);
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ summary, prompt: generatedPrompt }),
+          body: JSON.stringify({ summary, prompt: promptToUse }),
         }
       );
 
@@ -169,7 +163,6 @@ Target audience: Private equity investors and strategic buyers`);
 
       const data = await response.json();
       setGeneratedTeaser(data.teaser);
-      setShowTeaserPreview(true);
       
       toast({
         title: "Teaser generated",
@@ -204,189 +197,270 @@ Target audience: Private equity investors and strategic buyers`);
     });
   };
 
-  const resetAnalysis = () => {
+  const resetToStart = () => {
+    setCurrentStep("choose");
     setSelectedDocs([]);
     setSummary("");
-    setGeneratedPrompt("");
+    setCustomPrompt("");
     setGeneratedTeaser("");
-    setShowTeaserPreview(false);
-    setAnalysisStep("select");
   };
 
   return (
     <div className="space-y-6">
-      {/* Document Selection */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Document Analysis
-              </CardTitle>
-              <CardDescription>
-                Select documents to analyze and generate AI-powered summaries
-              </CardDescription>
-            </div>
-            {analysisStep !== "select" && (
-              <Button variant="outline" size="sm" onClick={resetAnalysis}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Start Over
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            {mockDocuments.map((doc) => (
-              <div
-                key={doc.id}
-                className="flex items-center space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-              >
-                <Checkbox
-                  id={doc.id}
-                  checked={selectedDocs.includes(doc.id)}
-                  onCheckedChange={() => toggleDocument(doc.id)}
-                />
-                <label
-                  htmlFor={doc.id}
-                  className="flex-1 flex items-center justify-between cursor-pointer"
-                >
-                  <div>
-                    <p className="font-medium">{doc.name}</p>
-                    <p className="text-sm text-muted-foreground">{doc.size}</p>
-                  </div>
-                  <Badge variant="secondary">{doc.type}</Badge>
-                </label>
-              </div>
-            ))}
-          </div>
+      {/* Header with Reset */}
+      {currentStep !== "choose" && (
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={resetToStart}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Start Over
+          </Button>
+        </div>
+      )}
 
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={generateSummary}
-              disabled={isAnalyzing || selectedDocs.length === 0}
-              className="w-full"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Analyzing Documents...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Summary ({selectedDocs.length} selected)
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Analysis Summary */}
-      {analysisStep !== "select" && (
+      {/* Step 1: Choose Action */}
+      {currentStep === "choose" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Analysis Summary
+              What would you like to create?
             </CardTitle>
             <CardDescription>
-              AI-generated summary of selected documents
+              Select an action to begin your workflow
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              className="min-h-[400px] font-mono text-sm"
-              placeholder="Summary will appear here..."
-            />
-            {analysisStep === "summary" && (
-              <Button onClick={generatePrompt} className="w-full">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate Prompt
-              </Button>
-            )}
+          <CardContent className="grid gap-4">
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-2"
+              onClick={() => setCurrentStep("summary")}
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                <span className="font-semibold">Generate Analysis Summary</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Analyze selected documents and create an AI-powered summary
+              </p>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-2"
+              onClick={() => setCurrentStep("teaser")}
+            >
+              <div className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                <span className="font-semibold">Generate Teaser Document</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Create a professional teaser for investors
+                {summary && " (using existing summary)"}
+              </p>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-2"
+              disabled
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                <span className="font-semibold">Generate CIM</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Create a comprehensive Confidential Information Memorandum (Coming Soon)
+              </p>
+            </Button>
           </CardContent>
         </Card>
       )}
 
-      {/* Generated Prompt */}
-      {analysisStep === "prompt" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
-              Document Generation Prompt
-            </CardTitle>
-            <CardDescription>
-              Edit the prompt to customize the output document
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              value={generatedPrompt}
-              onChange={(e) => setGeneratedPrompt(e.target.value)}
-              className="min-h-[300px] font-mono text-sm"
-              placeholder="Prompt will appear here..."
-            />
-            <div className="flex gap-2">
-              <Button 
-                className="flex-1"
-                onClick={generateTeaser}
-                disabled={isGeneratingTeaser}
+      {/* Step 2: Generate Summary */}
+      {currentStep === "summary" && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Select Documents to Analyze
+              </CardTitle>
+              <CardDescription>
+                Choose documents for AI-powered analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                {mockDocuments.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  >
+                    <Checkbox
+                      id={doc.id}
+                      checked={selectedDocs.includes(doc.id)}
+                      onCheckedChange={() => toggleDocument(doc.id)}
+                    />
+                    <label
+                      htmlFor={doc.id}
+                      className="flex-1 flex items-center justify-between cursor-pointer"
+                    >
+                      <div>
+                        <p className="font-medium">{doc.name}</p>
+                        <p className="text-sm text-muted-foreground">{doc.size}</p>
+                      </div>
+                      <Badge variant="secondary">{doc.type}</Badge>
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                onClick={generateSummary}
+                disabled={isAnalyzing || selectedDocs.length === 0}
+                className="w-full"
               >
-                {isGeneratingTeaser ? (
+                {isAnalyzing ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating Teaser...
+                    Analyzing Documents...
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Teaser
+                    Generate Summary ({selectedDocs.length} selected)
                   </>
                 )}
               </Button>
-              <Button variant="outline" disabled>
-                <Download className="h-4 w-4 mr-2" />
-                Export as PowerPoint
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {summary && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  Analysis Summary
+                </CardTitle>
+                <CardDescription>
+                  Review and edit the AI-generated summary
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Textarea
+                  value={summary}
+                  onChange={(e) => setSummary(e.target.value)}
+                  className="min-h-[400px] font-mono text-sm"
+                  placeholder="Summary will appear here..."
+                />
+                <div className="flex gap-2">
+                  <Button onClick={() => setCurrentStep("choose")} variant="outline">
+                    Back to Menu
+                  </Button>
+                  <Button onClick={() => setCurrentStep("teaser")} className="flex-1">
+                    Use in Teaser Generation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
-      {/* Generated Teaser Preview */}
-      {showTeaserPreview && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Generated Teaser Document
-            </CardTitle>
-            <CardDescription>
-              Preview and download your AI-generated teaser
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="prose prose-sm max-w-none p-4 rounded-lg border bg-muted/50">
-              <pre className="whitespace-pre-wrap font-sans">{generatedTeaser}</pre>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={downloadMarkdown} variant="outline" className="flex-1">
-                <Download className="h-4 w-4 mr-2" />
-                Download as Markdown
-              </Button>
-              <Button onClick={generateTeaser} variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Regenerate
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Step 3: Generate Teaser */}
+      {currentStep === "teaser" && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Generate Teaser Document
+              </CardTitle>
+              <CardDescription>
+                Customize your teaser generation prompt
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {summary && (
+                <div className="p-3 rounded-lg bg-muted/50 border">
+                  <p className="text-sm font-medium mb-1">Using existing summary</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{summary}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Custom Prompt (Optional)</label>
+                <Textarea
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  className="min-h-[200px] font-mono text-sm"
+                  placeholder={getDefaultTeaserPrompt()}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave empty to use the default prompt. The summary will be automatically included.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setCurrentStep(summary ? "summary" : "choose")} 
+                  variant="outline"
+                >
+                  Back
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={generateTeaser}
+                  disabled={isGeneratingTeaser}
+                >
+                  {isGeneratingTeaser ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating Teaser...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Teaser
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {generatedTeaser && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Generated Teaser Document
+                </CardTitle>
+                <CardDescription>
+                  Preview and download your AI-generated teaser
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="prose prose-sm max-w-none p-4 rounded-lg border bg-muted/50">
+                  <pre className="whitespace-pre-wrap font-sans">{generatedTeaser}</pre>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={downloadMarkdown} variant="outline" className="flex-1">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download as Markdown
+                  </Button>
+                  <Button onClick={generateTeaser} variant="outline">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Regenerate
+                  </Button>
+                  <Button onClick={() => setCurrentStep("choose")} variant="outline">
+                    Back to Menu
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
