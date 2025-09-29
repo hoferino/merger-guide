@@ -11,6 +11,7 @@ import { DealTimeline } from "@/components/DealTimeline";
 import { TodoSection } from "@/components/TodoSection";
 import { KPIMetrics } from "@/components/KPIMetrics";
 import DocumentsPage from "@/pages/DocumentsPage";
+import { AIAnalysisHub } from "@/components/AIAnalysisHub";
 
 export default function DealDetail() {
   const { id } = useParams();
@@ -107,6 +108,7 @@ export default function DealDetail() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="documents">Documents (Dataroom)</TabsTrigger>
+          <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="todos">Tasks</TabsTrigger>
           <TabsTrigger value="team">Team & Access</TabsTrigger>
@@ -137,6 +139,10 @@ export default function DealDetail() {
 
         <TabsContent value="documents">
           <DocumentsPage />
+        </TabsContent>
+
+        <TabsContent value="ai-analysis">
+          <AIAnalysisHub />
         </TabsContent>
 
         <TabsContent value="timeline">
