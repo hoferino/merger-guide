@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -45,18 +46,22 @@ const internalNavItems = [
 
 export function InternalSidebar() {
   const location = useLocation();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon" className={isCollapsed ? "w-14" : "w-60"}>
       <SidebarHeader className="border-b border-border px-6 py-4">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <FileText className="h-4 w-4 text-primary-foreground" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">M&A Platform</span>
-            <Badge variant="secondary" className="w-fit text-xs">Internal</Badge>
-          </div>
+          {!isCollapsed && (
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">M&A Platform</span>
+              <Badge variant="secondary" className="w-fit text-xs">Internal</Badge>
+            </div>
+          )}
         </div>
       </SidebarHeader>
 
@@ -73,7 +78,7 @@ export function InternalSidebar() {
                   >
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      {!isCollapsed && <span>{item.title}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -89,10 +94,12 @@ export function InternalSidebar() {
             <AvatarImage src="/placeholder.svg" />
             <AvatarFallback>JD</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">John Doe</span>
-            <span className="text-xs text-muted-foreground">Analyst</span>
-          </div>
+          {!isCollapsed && (
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">John Doe</span>
+              <span className="text-xs text-muted-foreground">Analyst</span>
+            </div>
+          )}
         </div>
       </SidebarFooter>
     </Sidebar>
