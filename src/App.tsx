@@ -13,6 +13,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import InternalDashboard from "./pages/internal/InternalDashboard";
 import AllDeals from "./pages/internal/AllDeals";
 import DealDetail from "./pages/internal/DealDetail";
+import DealDetailAlternative from "./pages/internal/DealDetailAlternative";
 import ClientManagement from "./pages/internal/ClientManagement";
 import Settings from "./pages/internal/Settings";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="dashboard" element={<InternalDashboard />} />
                 <Route path="deals" element={<AllDeals />} />
                 <Route path="deal/:id" element={<DealDetail />} />
+                <Route path="deal/:id/preview" element={<DealDetailAlternative />} />
                 <Route path="clients" element={<ClientManagement />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="settings" element={<Settings />} />

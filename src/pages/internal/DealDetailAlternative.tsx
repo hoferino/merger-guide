@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, Users, DollarSign, Calendar, TrendingUp, Scale, Sparkles } from "lucide-react";
+import { ArrowLeft, Edit, Users, DollarSign, Calendar, TrendingUp, Scale, Eye } from "lucide-react";
 import { DealOverview } from "@/components/DealOverview";
 import { DealTimeline } from "@/components/DealTimeline";
 import { TodoSection } from "@/components/TodoSection";
@@ -233,7 +233,7 @@ const flattenAllDocuments = (categories: any[]): DocType[] => {
   return allDocs;
 };
 
-export default function DealDetail() {
+export default function DealDetailAlternative() {
   const { id } = useParams();
   const deal = mockDeals.find(d => d.id === id);
   const client = deal ? mockClients.find(c => c.id === deal.clientId) : null;
@@ -284,9 +284,9 @@ export default function DealDetail() {
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">
-            <Link to={`/internal/deal/${id}/preview`}>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Preview Alternative Design
+            <Link to={`/internal/deal/${id}`}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Original
             </Link>
           </Button>
           <Button>
