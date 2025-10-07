@@ -11,7 +11,7 @@ import { DealTimeline } from "@/components/DealTimeline";
 import { TodoSection } from "@/components/TodoSection";
 import { KPIMetrics } from "@/components/KPIMetrics";
 import DocumentsPage from "@/pages/DocumentsPage";
-import { AIAnalysisHub } from "@/components/AIAnalysisHub";
+import { AnalysisWorkflowHub } from "@/components/analysis-workflow/AnalysisWorkflowHub";
 import { DocumentManagement } from "@/components/DocumentManagement";
 import { useDocumentManagement, Document as DocType, DocumentCategory } from "@/hooks/useDocumentManagement";
 
@@ -374,7 +374,7 @@ export default function DealDetailAlternative() {
         </TabsContent>
 
         <TabsContent value="ai-analysis" className="h-[calc(100vh-16rem)]">
-          <AIAnalysisHub documents={allDocuments} />
+          <AnalysisWorkflowHub documents={allDocuments} />
         </TabsContent>
 
         <TabsContent value="timeline">
