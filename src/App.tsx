@@ -30,6 +30,12 @@ const App = () => (
           {/* Root redirect to internal dashboard */}
           <Route path="/" element={<Navigate to="/internal/dashboard" replace />} />
           
+          {/* Common route redirects */}
+          <Route path="/documents" element={<Navigate to="/client/documents" replace />} />
+          <Route path="/timeline" element={<Navigate to="/client/timeline" replace />} />
+          <Route path="/todos" element={<Navigate to="/client/todos" replace />} />
+          <Route path="/analytics" element={<Navigate to="/client/analytics" replace />} />
+          
           {/* Client Routes */}
           <Route path="/client/*" element={
             <ClientDashboardLayout>
